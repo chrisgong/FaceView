@@ -13,7 +13,7 @@ import butterknife.OnClick;
 public class MainActivity extends Activity {
 
     @BindView(R.id.faceView)
-    FaceView faceView;
+    FaceView mFaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,21 +25,27 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        new Handler().postDelayed(() -> faceView.startLoadingAnimator(), 1000);
+        new Handler().postDelayed(() -> mFaceView.startLoadingAnimator(), 1000);
     }
 
     @OnClick(R.id.btn_play)
     void onPlay() {
-        faceView.restart();
+        mFaceView.restart();
     }
 
     @OnClick(R.id.btn_nod)
     void onNod() {
-        faceView.startNodAnimator();
+        mFaceView.startNodAnimator();
     }
 
     @OnClick(R.id.btn_shake)
     void onShake() {
-        faceView.startShakeAnimator();
+        mFaceView.startShakeAnimator();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mFaceView.release();
     }
 }

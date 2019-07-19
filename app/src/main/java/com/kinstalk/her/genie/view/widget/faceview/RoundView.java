@@ -160,6 +160,20 @@ public class RoundView extends View {
     }
 
     /**
+     * 释放动画
+     */
+    public void release(){
+        if (mValueAnimator != null && mValueAnimator.isRunning()) {
+            mValueAnimator.cancel();
+        }
+
+        if (mRotationAnimator != null && mRotationAnimator.isRunning()) {
+            mRotationAnimator.cancel();
+            setRotation(0);
+        }
+    }
+
+    /**
      * 重新开始背景动画
      */
     private void restartBackgroundAnimator() {

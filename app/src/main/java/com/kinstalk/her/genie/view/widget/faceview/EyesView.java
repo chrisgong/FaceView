@@ -182,6 +182,18 @@ public class EyesView extends View {
     }
 
     /**
+     * 释放动画
+     */
+    public void release() {
+        if (mOpenValueAnimator != null && mOpenValueAnimator.isRunning()) {
+            mOpenValueAnimator.cancel();
+        }
+        if (mCloseValueAnimator != null && mCloseValueAnimator.isRunning()) {
+            mCloseValueAnimator.cancel();
+        }
+    }
+
+    /**
      * 重新眨眼
      */
     public void restartBlinkAnimator() {
