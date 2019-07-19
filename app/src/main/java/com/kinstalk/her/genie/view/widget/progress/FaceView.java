@@ -15,13 +15,8 @@ public class FaceView extends RelativeLayout {
     private static final int DEFAULT_PAINT_WIDTH = 15;
 
     private RoundView mBackgroundView;
-    private EyesView mEyesView;
+    private EyesView mDefaultEyesView;
     private int mBackgroundSize, mEyesSize;
-    /**
-     * 屏幕中心点坐标
-     */
-    private int mCenterX, mCenterY, mEyeCenterX;
-
     public FaceView(Context context) {
         super(context);
     }
@@ -39,9 +34,9 @@ public class FaceView extends RelativeLayout {
         paramsBackground.addRule(RelativeLayout.CENTER_IN_PARENT);
         paramsEyes.addRule(RelativeLayout.CENTER_IN_PARENT);
         mBackgroundView = new RoundView(context, DEFAULT_PAINT_WIDTH);
-        mEyesView = new EyesView(context, DEFAULT_PAINT_WIDTH);
+        mDefaultEyesView = new EyesView(context, DEFAULT_PAINT_WIDTH);
         addView(mBackgroundView, paramsBackground);
-        addView(mEyesView, paramsEyes);
+        addView(mDefaultEyesView, paramsEyes);
     }
 
     /**
@@ -49,14 +44,13 @@ public class FaceView extends RelativeLayout {
      */
     public void startLoadingAnimator() {
         mBackgroundView.startCirculationAnimator();
-        mBottom = mBackgroundView.getRealBottom();
 
         postDelayed(() -> {
-            mEyesView.startInitializeAnimator();
+            mDefaultEyesView.startInitializeAnimator();
         }, 200);
 
         postDelayed(() -> {
-            mEyesView.startBlinkAnimator();
+            mDefaultEyesView.startBlinkAnimator();
         }, 1000);
     }
 
@@ -65,7 +59,7 @@ public class FaceView extends RelativeLayout {
      */
     public void restart() {
         mBackgroundView.restart();
-        mEyesView.restartBlinkAnimator();
+        mDefaultEyesView.restartBlinkAnimator();
     }
 
     /**
@@ -78,9 +72,6 @@ public class FaceView extends RelativeLayout {
         final float scale = getContext().getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
     }
-
-
-    private float mBottom;
 
     /**
      * 开始点头动画
@@ -95,7 +86,7 @@ public class FaceView extends RelativeLayout {
 
         AnimatorSet yieldOnlyEyeAnimator = new AnimatorSet();
         yieldOnlyEyeAnimator.setDuration(100);
-        yieldOnlyEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "rotationX", -25)).with(ObjectAnimator.ofFloat(mEyesView, "translationY", 25)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.125f));
+        yieldOnlyEyeAnimator.play(ObjectAnimator.ofFloat(mDefaultEyesView, "translationY", 25));
         yieldOnlyEyeAnimator.start();
 
         //抬头+跳跃
@@ -106,7 +97,7 @@ public class FaceView extends RelativeLayout {
 
         AnimatorSet riseAndJumpEyeAnimator = new AnimatorSet();
         riseAndJumpEyeAnimator.setDuration(150).setStartDelay(100);
-        riseAndJumpEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "rotationX", 0)).with(ObjectAnimator.ofFloat(mEyesView, "translationY", -80)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.0f));
+        riseAndJumpEyeAnimator.play(ObjectAnimator.ofFloat(mDefaultEyesView, "translationY", -80)).with(ObjectAnimator.ofFloat(mDefaultEyesView, "scaleY", 0.7f));
         riseAndJumpEyeAnimator.start();
 
         //低头+下落
@@ -117,7 +108,7 @@ public class FaceView extends RelativeLayout {
 
         AnimatorSet yieldAndFallEyeAnimator = new AnimatorSet();
         yieldAndFallEyeAnimator.setDuration(100).setStartDelay(250);
-        yieldAndFallEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "translationY", 25)).with(ObjectAnimator.ofFloat(mEyesView, "rotationX", -30)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.125f));
+        yieldAndFallEyeAnimator.play(ObjectAnimator.ofFloat(mDefaultEyesView, "translationY", 25)).with(ObjectAnimator.ofFloat(mDefaultEyesView, "scaleY", 1.0f));
         yieldAndFallEyeAnimator.start();
 //
         //抬头+跳跃
@@ -128,7 +119,7 @@ public class FaceView extends RelativeLayout {
 
         AnimatorSet riseAndJumpEyeAnimator2 = new AnimatorSet();
         riseAndJumpEyeAnimator2.setDuration(150).setStartDelay(350);
-        riseAndJumpEyeAnimator2.play(ObjectAnimator.ofFloat(mEyesView, "rotationX", 0)).with(ObjectAnimator.ofFloat(mEyesView, "translationY", -80)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.0f));
+        riseAndJumpEyeAnimator2.play(ObjectAnimator.ofFloat(mDefaultEyesView, "translationY", -80)).with(ObjectAnimator.ofFloat(mDefaultEyesView, "scaleY", 0.7f));
         riseAndJumpEyeAnimator2.start();
 
         //低头+下落
@@ -139,7 +130,7 @@ public class FaceView extends RelativeLayout {
 
         AnimatorSet yieldAndFallEyeAnimator2 = new AnimatorSet();
         yieldAndFallEyeAnimator2.setDuration(100).setStartDelay(500);
-        yieldAndFallEyeAnimator2.play(ObjectAnimator.ofFloat(mEyesView, "translationY", 25)).with(ObjectAnimator.ofFloat(mEyesView, "rotationX", -30)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.125f));
+        yieldAndFallEyeAnimator2.play(ObjectAnimator.ofFloat(mDefaultEyesView, "translationY", 25)).with(ObjectAnimator.ofFloat(mDefaultEyesView, "scaleY", 1.0f));
         yieldAndFallEyeAnimator2.start();
 
         //抬头
@@ -150,7 +141,7 @@ public class FaceView extends RelativeLayout {
 
         AnimatorSet riseOnlyEyeAnimator = new AnimatorSet();
         riseOnlyEyeAnimator.setDuration(100).setStartDelay(600);
-        riseOnlyEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "translationY", 0)).with(ObjectAnimator.ofFloat(mEyesView, "rotationX", 0)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.0f));
+        riseOnlyEyeAnimator.play(ObjectAnimator.ofFloat(mDefaultEyesView, "translationY", 0));
         riseOnlyEyeAnimator.start();
     }
 
@@ -158,33 +149,49 @@ public class FaceView extends RelativeLayout {
      * 开始摇头动画
      */
     public void startShakeAnimator() {
-        mBackgroundView.animate().x(mCenterX).rotationYBy(-25).setDuration(100);
-        mEyesView.animate().x(mEyeCenterX).rotationYBy(-25).setDuration(100);
-        postDelayed(() -> {
-            mBackgroundView.animate().x(mCenterX).rotationYBy(50).setDuration(100);
-            mEyesView.animate().x(mEyeCenterX).rotationYBy(50).setDuration(100);
-        }, 100);
-        postDelayed(() -> {
-            mBackgroundView.animate().x(mCenterX).rotationYBy(-50).setDuration(100);
-            mEyesView.animate().x(mEyeCenterX).rotationYBy(-50).setDuration(100);
-        }, 200);
-        postDelayed(() -> {
-            mBackgroundView.animate().x(mCenterX).rotationYBy(50).setDuration(100);
-            mEyesView.animate().x(mEyeCenterX).rotationYBy(50).setDuration(100);
-        }, 300);
-        postDelayed(() -> {
-            mBackgroundView.animate().x(mCenterX).rotationYBy(-50).setDuration(100);
-            mEyesView.animate().x(mEyeCenterX).rotationYBy(-50).setDuration(100);
-        }, 400);
-        postDelayed(() -> {
-            mBackgroundView.animate().x(mCenterX).rotationY(0).setDuration(100);
-            mEyesView.animate().x(mEyeCenterX).rotationY(0).setDuration(100);
-        }, 500);
-    }
+        //左摇
+        ObjectAnimator leftShakeBgAnimator = ObjectAnimator.ofFloat(mBackgroundView, "translationX", -25);
+        leftShakeBgAnimator.setDuration(100);
+        leftShakeBgAnimator.start();
 
-    public void setDisplay(float centerX, float centerY) {
-        this.mCenterX = (int) (centerX - mBackgroundSize / 2f) + DEFAULT_PAINT_WIDTH * 2; //加上默认笔刷的宽度
-        this.mCenterY = (int) (centerY - mBackgroundSize / 2f) + DEFAULT_PAINT_WIDTH * 2;
-        this.mEyeCenterX = (int) (centerX - mEyesSize / 2f) + DEFAULT_PAINT_WIDTH * 2;
+        ObjectAnimator leftShakeEyeAnimator = ObjectAnimator.ofFloat(mDefaultEyesView, "translationX", -70);
+        leftShakeEyeAnimator.setDuration(100);
+        leftShakeEyeAnimator.start();
+
+        //右摇
+        ObjectAnimator rightShakeBgAnimator = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 20f);
+        rightShakeBgAnimator.setDuration(150).setStartDelay(100);
+        rightShakeBgAnimator.start();
+
+        ObjectAnimator rightShakeEyeAnimator = ObjectAnimator.ofFloat(mDefaultEyesView, "translationX", 55);
+        rightShakeEyeAnimator.setDuration(150).setStartDelay(100);
+        rightShakeEyeAnimator.start();
+
+        //左摇
+        ObjectAnimator leftShakeBgAnimator2 = ObjectAnimator.ofFloat(mBackgroundView, "translationX", -15f);
+        leftShakeBgAnimator2.setDuration(150).setStartDelay(250);
+        leftShakeBgAnimator2.start();
+
+        ObjectAnimator leftShakeEyeAnimator2 = ObjectAnimator.ofFloat(mDefaultEyesView, "translationX", -40);
+        leftShakeEyeAnimator2.setDuration(150).setStartDelay(250);
+        leftShakeEyeAnimator2.start();
+
+        //右摇
+        ObjectAnimator rightShakeBgAnimator2 = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 10f);
+        rightShakeBgAnimator2.setDuration(150).setStartDelay(400);
+        rightShakeBgAnimator2.start();
+
+        ObjectAnimator rightShakeEyeAnimator2 = ObjectAnimator.ofFloat(mDefaultEyesView, "translationX", 25f);
+        rightShakeEyeAnimator2.setDuration(150).setStartDelay(400);
+        rightShakeEyeAnimator2.start();
+
+        //还原
+        ObjectAnimator reverseShakeBgAnimator = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 0);
+        reverseShakeBgAnimator.setDuration(100).setStartDelay(550);
+        reverseShakeBgAnimator.start();
+
+        ObjectAnimator reverseShakeEyeAnimator = ObjectAnimator.ofFloat(mDefaultEyesView, "translationX", 0);
+        reverseShakeEyeAnimator.setDuration(100).setStartDelay(550);
+        reverseShakeEyeAnimator.start();
     }
 }

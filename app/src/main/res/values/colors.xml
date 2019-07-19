@@ -8,5 +8,5 @@
     <color name="progress_start">#A1FDFF</color>
     <color name="progress_center">#0073FF</color>
     <color name="progress_end">#000000</color>
-    <color name="translucent_background">#E6000000</color>
+    <color name="translucent_background">#F2000000</color>
 </resources>
