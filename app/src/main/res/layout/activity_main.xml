@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.kinstalk.her.genie.view.widget.progress.FaceView
+    <com.kinstalk.her.genie.view.widget.faceview.FaceView
         android:id="@+id/faceView"
         android:layout_width="400dp"
         android:layout_height="400dp"

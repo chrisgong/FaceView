@@ -1,4 +1,4 @@
-package com.kinstalk.her.genie.view.widget.progress;
+package com.kinstalk.her.genie.view.widget.faceview;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;

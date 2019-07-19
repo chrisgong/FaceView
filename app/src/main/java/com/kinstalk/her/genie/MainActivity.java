@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 
-import com.kinstalk.her.genie.view.widget.progress.FaceView;
+import com.kinstalk.her.genie.view.widget.faceview.FaceView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
