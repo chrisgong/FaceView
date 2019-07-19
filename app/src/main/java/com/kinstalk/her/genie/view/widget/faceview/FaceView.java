@@ -77,7 +77,7 @@ public class FaceView extends RelativeLayout {
                         mDefaultEyesView.startBlinkAnimator();
                     }
                     //5-20s随机眨眼
-                    mHandler.sendEmptyMessageDelayed(ACTION_BLINK_ANIMATOR, (new Random().nextInt(15) + 5) * 1000);
+                    mHandler.sendEmptyMessageDelayed(ACTION_BLINK_ANIMATOR, (new Random().nextInt(10) + 5) * 1000);
                     break;
             }
         }
