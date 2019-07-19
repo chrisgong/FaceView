@@ -184,6 +184,12 @@ public class EyesView extends View {
      * 重新眨眼
      */
     public void restartBlinkAnimator() {
+        if (mOpenValueAnimator != null && mOpenValueAnimator.isRunning()) {
+            mOpenValueAnimator.cancel();
+        }
+        if (mCloseValueAnimator != null && mCloseValueAnimator.isRunning()) {
+            mCloseValueAnimator.cancel();
+        }
         resetDefaultEyeCoordinate();
         invalidate();
         startInitializeAnimator();
