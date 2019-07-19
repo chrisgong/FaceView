@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.kinstalk.her.genie.view.widget.progress.FaceView
+        android:id="@+id/faceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/btn_play"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:background="@color/progress_center"
+        android:clickable="true"
+        android:text="RETRY"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btn_nod"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_toRightOf="@+id/btn_play"
+        android:background="@color/progress_center"
+        android:clickable="true"
+        android:text="NOD"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btn_shake"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_toRightOf="@+id/btn_nod"
+        android:background="@color/progress_center"
+        android:clickable="true"
+        android:text="SHAKE"
+        android:textColor="@android:color/white" />
+</RelativeLayout>
