@@ -177,7 +177,7 @@ public class FaceView extends RelativeLayout {
         leftShakeEyeAnimator2.start();
 
         //右摇
-        ObjectAnimator rightShakeBgAnimator2 = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 10f);
+        ObjectAnimator rightShakeBgAnimator2 = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 15f);
         rightShakeBgAnimator2.setDuration(150).setStartDelay(400);
         rightShakeBgAnimator2.start();
 
@@ -187,11 +187,11 @@ public class FaceView extends RelativeLayout {
 
         //还原
         ObjectAnimator reverseShakeBgAnimator = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 0);
-        reverseShakeBgAnimator.setDuration(100).setStartDelay(550);
+        reverseShakeBgAnimator.setDuration(150).setStartDelay(550);
         reverseShakeBgAnimator.start();
 
         ObjectAnimator reverseShakeEyeAnimator = ObjectAnimator.ofFloat(mDefaultEyesView, "translationX", 0);
-        reverseShakeEyeAnimator.setDuration(100).setStartDelay(550);
+        reverseShakeEyeAnimator.setDuration(150).setStartDelay(550);
         reverseShakeEyeAnimator.start();
     }
 }
