@@ -27,7 +27,7 @@ public class EyesView extends View {
     private float[] mCenterPos, mLeftEyePos, mRightEyePos;
     private static final int DEFAULT_PAINT_COLOR = Color.parseColor("#A1FDFF");
     private ValueAnimator mOpenValueAnimator, mCloseValueAnimator;
-    private static final int DEFAULT_ANIM_DURATION = 150;
+    private static final int DEFAULT_ANIM_DURATION = 100;
     private float mEyesRadius;
 
     public EyesView(Context context, int defaultPaintWidth) {
@@ -128,7 +128,7 @@ public class EyesView extends View {
      */
     public void startBlinkAnimator() {
         if (mCloseValueAnimator == null) {
-            mCloseValueAnimator = ValueAnimator.ofFloat(1.5f, 0f);
+            mCloseValueAnimator = ValueAnimator.ofFloat(1f, 0f);
             mCloseValueAnimator.setDuration(DEFAULT_ANIM_DURATION);
             mCloseValueAnimator.setInterpolator(new DecelerateInterpolator());
             mCloseValueAnimator.addUpdateListener(animation -> {
@@ -158,6 +158,7 @@ public class EyesView extends View {
 
                 @Override
                 public void onAnimationEnd(Animator animator) {
+                    resetDefaultEyeCoordinate();
                     mOpenValueAnimator.start();
                 }
 
