@@ -1,11 +1,18 @@
 package com.kinstalk.her.genie.view.widget.faceview;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
+
+import java.util.Random;
+
 
 /**
  * @author Gc
@@ -13,10 +20,18 @@ import android.widget.RelativeLayout;
  */
 public class FaceView extends RelativeLayout {
     private static final int DEFAULT_PAINT_WIDTH = 15;
+    private static final int ACTION_INIT_ANIMATOR = 0;
+    private static final int ACTION_BLINK_ANIMATOR = 1;
 
     private RoundView mBackgroundView;
     private EyesView mDefaultEyesView;
     private int mBackgroundSize, mEyesSize;
+
+    /**
+     * 动画播放中
+     */
+    private boolean mAnimationPlaying;
+
     public FaceView(Context context) {
         super(context);
     }
@@ -44,20 +59,35 @@ public class FaceView extends RelativeLayout {
      */
     public void startLoadingAnimator() {
         mBackgroundView.startCirculationAnimator();
-
-        postDelayed(() -> {
-            mDefaultEyesView.startInitializeAnimator();
-        }, 200);
-
-        postDelayed(() -> {
-            mDefaultEyesView.startBlinkAnimator();
-        }, 1000);
+        mHandler.sendEmptyMessageDelayed(ACTION_INIT_ANIMATOR, 200);
+        mHandler.sendEmptyMessageDelayed(ACTION_BLINK_ANIMATOR, 1000);
     }
+
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case ACTION_INIT_ANIMATOR:
+                    mDefaultEyesView.startInitializeAnimator();
+                    break;
+                case ACTION_BLINK_ANIMATOR:
+                    if (!mAnimationPlaying) {
+                        mDefaultEyesView.startBlinkAnimator();
+                    }
+                    //5-20s随机眨眼
+                    mHandler.sendEmptyMessageDelayed(ACTION_BLINK_ANIMATOR, (new Random().nextInt(15) + 5) * 1000);
+                    break;
+            }
+        }
+    };
 
     /**
      * 重启动画
      */
     public void restart() {
+        mAnimationPlaying = false;
         mBackgroundView.restart();
         mDefaultEyesView.restartBlinkAnimator();
     }
@@ -77,7 +107,6 @@ public class FaceView extends RelativeLayout {
      * 开始点头动画
      */
     public void startNodAnimator() {
-
         //低头
         AnimatorSet yieldOnlyBgAnimator = new AnimatorSet();
         yieldOnlyBgAnimator.setDuration(100);
@@ -143,6 +172,29 @@ public class FaceView extends RelativeLayout {
         riseOnlyEyeAnimator.setDuration(100).setStartDelay(600);
         riseOnlyEyeAnimator.play(ObjectAnimator.ofFloat(mDefaultEyesView, "translationY", 0));
         riseOnlyEyeAnimator.start();
+
+        mAnimationPlaying = true;
+        riseOnlyEyeAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mAnimationPlaying = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
     }
 
     /**
@@ -193,5 +245,28 @@ public class FaceView extends RelativeLayout {
         ObjectAnimator reverseShakeEyeAnimator = ObjectAnimator.ofFloat(mDefaultEyesView, "translationX", 0);
         reverseShakeEyeAnimator.setDuration(100).setStartDelay(550);
         reverseShakeEyeAnimator.start();
+
+        mAnimationPlaying = true;
+        reverseShakeBgAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mAnimationPlaying = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
     }
 }
