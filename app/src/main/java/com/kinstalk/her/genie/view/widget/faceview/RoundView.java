@@ -1,13 +1,11 @@
 package com.kinstalk.her.genie.view.widget.faceview;
 
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
 import android.view.View;
@@ -21,13 +19,12 @@ import android.view.animation.LinearInterpolator;
 public class RoundView extends View {
 
     private Paint mArcPaint;
-    private Path mArcPath;
     private RectF mArcRectF;
 
     private static final int DEFAULT_ANIM_DURATION = 400;
     private static final int DEFAULT_PAINT_COLOR = Color.parseColor("#A1FDFF");
     private static final int ROTATE_OFFSET = 270;
-    private float mStartAngle, mSweepAngle;
+    private float mStartAngle, mSweepAngle, mRoteAngle;
     private int mStrokeColor;
     private int mAnimDuration;
     private float mBackgroundStrokeWidth;
@@ -35,7 +32,7 @@ public class RoundView extends View {
     private float[] mCenterPos;
     private ValueAnimator mValueAnimator;
     private ValueAnimator mRotationAnimator;
-    private int size;
+    private float mHalfSize;
 
     public RoundView(Context context, int defaultPaintWidth) {
         super(context);
@@ -44,13 +41,12 @@ public class RoundView extends View {
     }
 
     private void init() {
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
+//        setLayerType(LAYER_TYPE_SOFTWARE, null);
 
         // get attrs
         mStrokeColor = DEFAULT_PAINT_COLOR;
         mAnimDuration = DEFAULT_ANIM_DURATION;
 
-        mArcPath = new Path();
         mArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mArcPaint.setStyle(Paint.Style.STROKE);
         mArcPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -63,9 +59,11 @@ public class RoundView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        mArcPath.reset();
-        mArcPath.addArc(mArcRectF, mStartAngle, mSweepAngle);
-        canvas.drawPath(mArcPath, mArcPaint);
+        if (mIsRotate) {
+            canvas.rotate(mRoteAngle, mHalfSize, mHalfSize);
+        }
+
+        canvas.drawArc(mArcRectF, mStartAngle, mSweepAngle, false, mArcPaint);
     }
 
     @Override
@@ -73,9 +71,10 @@ public class RoundView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
-        size = (width < height) ? width : height;
+        int size = (width < height) ? width : height;
+        mHalfSize = size / 2f;
         setMeasuredDimension(size, size);
-        initBackgroundConfig(width, height);
+        initBackgroundConfig(size, size);
     }
 
     /**
@@ -87,21 +86,15 @@ public class RoundView extends View {
     private void initBackgroundConfig(int width, int height) {
         mCenterPos[0] = (width) / 2f;
         mCenterPos[1] = (height) / 2f;
-        mArcRectF = new RectF(mBackgroundStrokeWidth, mBackgroundStrokeWidth, width - mBackgroundStrokeWidth, height - mBackgroundStrokeWidth);
+        mArcRectF = new RectF(mBackgroundStrokeWidth - 5f, mBackgroundStrokeWidth - 5f, (float) width - mBackgroundStrokeWidth + 5f, (float) height - mBackgroundStrokeWidth + 5f);
 
         int[] colors = {0xFFA1FDFF, 0xFF0073FF, 0x000073FF};
-        SweepGradient sweepGradient = new SweepGradient(size / 2f, size / 2f, colors, new float[]{0.2f, 0.5f, 0.9f});
+        SweepGradient sweepGradient = new SweepGradient(mHalfSize, mHalfSize, colors, new float[]{0.2f, 0.5f, 0.9f});
         Matrix matrix = new Matrix();
-        matrix.setRotate(ROTATE_OFFSET - 10, size / 2f, size / 2f);
+        matrix.setRotate(ROTATE_OFFSET - 10, mHalfSize, mHalfSize);
         sweepGradient.setLocalMatrix(matrix);
         mArcPaint.setShader(sweepGradient);
-        mArcPaint.setShadowLayer(3, 0, 0, Color.parseColor("#FFA1FDFF"));
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        size = (w < h) ? w : h;
+//        mArcPaint.setShadowLayer(6, 0, 0, Color.WHITE);
     }
 
     @Override
@@ -112,10 +105,6 @@ public class RoundView extends View {
         }
     }
 
-    public float getRealBottom() {
-        return size - mArcRectF.bottom + mBackgroundStrokeWidth;
-    }
-
     /**
      * 开始循环背景动画
      */
@@ -123,33 +112,42 @@ public class RoundView extends View {
         startBackgroundAnimator();
     }
 
+    private boolean mIsRotate;
+
     /**
      * 背景转圈动画
      */
     private void startBackgroundAnimator() {
-        mRotationAnimator = ObjectAnimator.ofFloat(this, "rotation", 0, 360.0f);
-        mRotationAnimator.setInterpolator(new LinearInterpolator());
-        mRotationAnimator.setDuration(3000);
-        mRotationAnimator.setStartDelay(200);
-        mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
+        this.post(() -> {
+            mRotationAnimator = ValueAnimator.ofFloat(0.0f, 720.0f);
+            mRotationAnimator.setInterpolator(new LinearInterpolator());
+            mRotationAnimator.setDuration(4000);
+            mRotationAnimator.setStartDelay(200);
+            mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
+            mRotationAnimator.addUpdateListener(valueAnimator -> {
+                mRoteAngle = (float) valueAnimator.getAnimatedValue();
+                postInvalidate();
+            });
 
-        mValueAnimator = ValueAnimator.ofFloat(ROTATE_OFFSET, 360.0f + ROTATE_OFFSET);
-        mValueAnimator.setDuration(mAnimDuration);
-        mValueAnimator.setInterpolator(new DecelerateInterpolator());
-        mValueAnimator.addUpdateListener(animation -> {
-            if (!animation.isRunning()) {
-                return;
-            }
+            mValueAnimator = ValueAnimator.ofFloat(ROTATE_OFFSET, 360.0f + ROTATE_OFFSET);
+            mValueAnimator.setDuration(mAnimDuration);
+            mValueAnimator.setInterpolator(new DecelerateInterpolator());
+            mValueAnimator.addUpdateListener(animation -> {
+                if (!animation.isRunning()) {
+                    return;
+                }
 
-            if (mSweepAngle >= -320) {
-                mStartAngle = (float) animation.getAnimatedValue();
-                mSweepAngle = ROTATE_OFFSET - mStartAngle;
-                invalidate();
-            }
+                if (mSweepAngle >= -320) {
+                    mStartAngle = (float) animation.getAnimatedValue();
+                    mSweepAngle = ROTATE_OFFSET - mStartAngle;
+                    mIsRotate = true;
+                    postInvalidate();
+                }
+            });
+            mRotationAnimator.start();
+            mValueAnimator.start();
         });
-        mRotationAnimator.start();
-        mValueAnimator.start();
     }
 
     /**
@@ -162,7 +160,9 @@ public class RoundView extends View {
     /**
      * 释放动画
      */
-    public void release(){
+    public void release() {
+//        setLayerType(LAYER_TYPE_NONE, null);
+
         if (mValueAnimator != null && mValueAnimator.isRunning()) {
             mValueAnimator.cancel();
         }

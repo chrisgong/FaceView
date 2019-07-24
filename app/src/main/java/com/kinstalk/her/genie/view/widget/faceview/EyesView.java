@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
@@ -37,7 +38,8 @@ public class EyesView extends View {
     }
 
     private void init() {
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
+//        setLayerType(LAYER_TYPE_SOFTWARE, null);
+
         mEyePath = new Path();
         mEyePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mEyePaint.setStyle(Paint.Style.STROKE);
@@ -50,6 +52,8 @@ public class EyesView extends View {
         mCenterPos = new float[2];
         mLeftEyePos = new float[2];
         mRightEyePos = new float[2];
+        mRectLeftEys = new RectF();
+        mRectRightEys = new RectF();
         setAlpha(0);
     }
 
@@ -117,7 +121,7 @@ public class EyesView extends View {
                 mRectLeftEys.bottom = tempLeftBottom + heightMultiple;
                 mRectRightEys.top = tempRightTop - heightMultiple;
                 mRectRightEys.bottom = tempRightBottom + heightMultiple;
-                invalidate();
+                postInvalidate();
             });
         }
         mOpenValueAnimator.start();
@@ -147,7 +151,7 @@ public class EyesView extends View {
                 mRectLeftEys.bottom = tempLeftBottom - heightMultiple;
                 mRectRightEys.top = tempRightTop + heightMultiple;
                 mRectRightEys.bottom = tempRightBottom - heightMultiple;
-                invalidate();
+                postInvalidate();
             });
 
             mCloseValueAnimator.addListener(new Animator.AnimatorListener() {
@@ -185,6 +189,8 @@ public class EyesView extends View {
      * 释放动画
      */
     public void release() {
+//        setLayerType(LAYER_TYPE_NONE, null);
+
         if (mOpenValueAnimator != null && mOpenValueAnimator.isRunning()) {
             mOpenValueAnimator.cancel();
         }
@@ -204,7 +210,7 @@ public class EyesView extends View {
             mCloseValueAnimator.cancel();
         }
         resetDefaultEyeCoordinate();
-        invalidate();
+        postInvalidate();
         startInitializeAnimator();
         postDelayed(() -> startBlinkAnimator(), 1000);
     }
