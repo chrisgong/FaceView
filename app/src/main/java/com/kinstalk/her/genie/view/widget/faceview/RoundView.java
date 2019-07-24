@@ -30,8 +30,7 @@ public class RoundView extends View {
     private float mBackgroundStrokeWidth;
 
     private float[] mCenterPos;
-    private ValueAnimator mValueAnimator;
-    private ValueAnimator mRotationAnimator;
+    private ValueAnimator mValueAnimator, mRotationAnimator;
     private float mHalfSize;
 
     public RoundView(Context context, int defaultPaintWidth) {
@@ -94,7 +93,7 @@ public class RoundView extends View {
         matrix.setRotate(ROTATE_OFFSET - 10, mHalfSize, mHalfSize);
         sweepGradient.setLocalMatrix(matrix);
         mArcPaint.setShader(sweepGradient);
-//        mArcPaint.setShadowLayer(6, 0, 0, Color.WHITE);
+//        mArcPaint.setShadowLayer(10, 0, 0, Color.WHITE);
     }
 
     @Override
@@ -119,32 +118,36 @@ public class RoundView extends View {
      */
     private void startBackgroundAnimator() {
         this.post(() -> {
-            mRotationAnimator = ValueAnimator.ofFloat(0.0f, 720.0f);
-            mRotationAnimator.setInterpolator(new LinearInterpolator());
-            mRotationAnimator.setDuration(4000);
-            mRotationAnimator.setStartDelay(200);
-            mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
-            mRotationAnimator.addUpdateListener(valueAnimator -> {
-                mRoteAngle = (float) valueAnimator.getAnimatedValue();
-                postInvalidate();
-            });
-
-            mValueAnimator = ValueAnimator.ofFloat(ROTATE_OFFSET, 360.0f + ROTATE_OFFSET);
-            mValueAnimator.setDuration(mAnimDuration);
-            mValueAnimator.setInterpolator(new DecelerateInterpolator());
-            mValueAnimator.addUpdateListener(animation -> {
-                if (!animation.isRunning()) {
-                    return;
-                }
-
-                if (mSweepAngle >= -320) {
-                    mStartAngle = (float) animation.getAnimatedValue();
-                    mSweepAngle = ROTATE_OFFSET - mStartAngle;
-                    mIsRotate = true;
+            if (mRotationAnimator == null) {
+                mRotationAnimator = ValueAnimator.ofFloat(0.0f, 720.0f);
+                mRotationAnimator.setInterpolator(new LinearInterpolator());
+                mRotationAnimator.setDuration(4000);
+                mRotationAnimator.setStartDelay(200);
+                mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
+                mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
+                mRotationAnimator.addUpdateListener(valueAnimator -> {
+                    mRoteAngle = (float) valueAnimator.getAnimatedValue();
                     postInvalidate();
-                }
-            });
+                });
+            }
+
+            if (mValueAnimator == null) {
+                mValueAnimator = ValueAnimator.ofFloat(ROTATE_OFFSET, 360.0f + ROTATE_OFFSET);
+                mValueAnimator.setDuration(mAnimDuration);
+                mValueAnimator.setInterpolator(new DecelerateInterpolator());
+                mValueAnimator.addUpdateListener(animation -> {
+                    if (!animation.isRunning()) {
+                        return;
+                    }
+
+                    if (mSweepAngle >= -320) {
+                        mStartAngle = (float) animation.getAnimatedValue();
+                        mSweepAngle = ROTATE_OFFSET - mStartAngle;
+                        mIsRotate = true;
+                        postInvalidate();
+                    }
+                });
+            }
             mRotationAnimator.start();
             mValueAnimator.start();
         });

@@ -1,15 +1,12 @@
 package com.kinstalk.her.genie.view.widget.faceview;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 import java.util.Random;
@@ -127,73 +124,31 @@ public class FaceView extends RelativeLayout {
     public void startNodAnimator() {
         this.post(() -> {
             //低头
-            AnimatorSet yieldOnlyBgAnimator = new AnimatorSet();
-            yieldOnlyBgAnimator.setDuration(100);
-            yieldOnlyBgAnimator.play(ObjectAnimator.ofFloat(mBackgroundView, "translationY", 25)).with(ObjectAnimator.ofFloat(mBackgroundView, "rotationX", -25));
-            yieldOnlyBgAnimator.start();
-
-            AnimatorSet yieldOnlyEyeAnimator = new AnimatorSet();
-            yieldOnlyEyeAnimator.setDuration(100);
-            yieldOnlyEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "translationY", 25));
-            yieldOnlyEyeAnimator.start();
+            AnimatorHelper.getInstance().getYieldOnlyBgAnimator(mBackgroundView).start();
+            AnimatorHelper.getInstance().getYieldOnlyEyeAnimator(mEyesView).start();
 
             //抬头+跳跃
-            AnimatorSet riseAndJumpBgAnimator = new AnimatorSet();
-            riseAndJumpBgAnimator.setDuration(150).setStartDelay(100);
-            riseAndJumpBgAnimator.play(ObjectAnimator.ofFloat(mBackgroundView, "rotationX", 0)).with(ObjectAnimator.ofFloat(mBackgroundView, "translationY", -75));
-            riseAndJumpBgAnimator.start();
-
-            AnimatorSet riseAndJumpEyeAnimator = new AnimatorSet();
-            riseAndJumpEyeAnimator.setDuration(150).setStartDelay(100);
-            riseAndJumpEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "translationY", -80)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 0.7f));
-            riseAndJumpEyeAnimator.start();
+            AnimatorHelper.getInstance().getRiseAndJumpBgAnimator(mBackgroundView).start();
+            AnimatorHelper.getInstance().getRiseAndJumpEyeAnimator(mEyesView).start();
 
             //低头+下落
-            AnimatorSet yieldAndFallBgAnimator = new AnimatorSet();
-            yieldAndFallBgAnimator.setDuration(100).setStartDelay(250);
-            yieldAndFallBgAnimator.play(ObjectAnimator.ofFloat(mBackgroundView, "rotationX", -25)).with(ObjectAnimator.ofFloat(mBackgroundView, "translationY", 25));
-            yieldAndFallBgAnimator.start();
+            AnimatorHelper.getInstance().getYieldAndFallBgAnimator(mBackgroundView).start();
+            AnimatorHelper.getInstance().getYieldAndFallEyeAnimator(mEyesView).start();
 
-            AnimatorSet yieldAndFallEyeAnimator = new AnimatorSet();
-            yieldAndFallEyeAnimator.setDuration(100).setStartDelay(250);
-            yieldAndFallEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "translationY", 25)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.0f));
-            yieldAndFallEyeAnimator.start();
-//
             //抬头+跳跃
-            AnimatorSet riseAndJumpBgAnimator2 = new AnimatorSet();
-            riseAndJumpBgAnimator2.setDuration(150).setStartDelay(350);
-            riseAndJumpBgAnimator2.play(ObjectAnimator.ofFloat(mBackgroundView, "rotationX", 0)).with(ObjectAnimator.ofFloat(mBackgroundView, "translationY", -75));
-            riseAndJumpBgAnimator2.start();
-
-            AnimatorSet riseAndJumpEyeAnimator2 = new AnimatorSet();
-            riseAndJumpEyeAnimator2.setDuration(150).setStartDelay(350);
-            riseAndJumpEyeAnimator2.play(ObjectAnimator.ofFloat(mEyesView, "translationY", -80)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 0.7f));
-            riseAndJumpEyeAnimator2.start();
+            AnimatorHelper.getInstance().getRiseAndJumpBgAnimator2(mBackgroundView).start();
+            AnimatorHelper.getInstance().getRiseAndJumpEyeAnimator2(mEyesView).start();
 
             //低头+下落
-            AnimatorSet yieldAndFallBgAnimator2 = new AnimatorSet();
-            yieldAndFallBgAnimator2.setDuration(100).setStartDelay(500);
-            yieldAndFallBgAnimator2.play(ObjectAnimator.ofFloat(mBackgroundView, "rotationX", -25)).with(ObjectAnimator.ofFloat(mBackgroundView, "translationY", 25));
-            yieldAndFallBgAnimator2.start();
-
-            AnimatorSet yieldAndFallEyeAnimator2 = new AnimatorSet();
-            yieldAndFallEyeAnimator2.setDuration(100).setStartDelay(500);
-            yieldAndFallEyeAnimator2.play(ObjectAnimator.ofFloat(mEyesView, "translationY", 25)).with(ObjectAnimator.ofFloat(mEyesView, "scaleY", 1.0f));
-            yieldAndFallEyeAnimator2.start();
+            AnimatorHelper.getInstance().getYieldAndFallBgAnimator2(mBackgroundView).start();
+            AnimatorHelper.getInstance().getYieldAndFallEyeAnimator2(mEyesView).start();
 
             //抬头
-            AnimatorSet riseOnlyBgAnimator = new AnimatorSet();
-            riseOnlyBgAnimator.setDuration(100).setStartDelay(600);
-            riseOnlyBgAnimator.play(ObjectAnimator.ofFloat(mBackgroundView, "rotationX", 0)).with(ObjectAnimator.ofFloat(mBackgroundView, "translationY", 0));
-            riseOnlyBgAnimator.start();
-
-            AnimatorSet riseOnlyEyeAnimator = new AnimatorSet();
-            riseOnlyEyeAnimator.setDuration(100).setStartDelay(600);
-            riseOnlyEyeAnimator.play(ObjectAnimator.ofFloat(mEyesView, "translationY", 0));
-            riseOnlyEyeAnimator.start();
+            AnimatorHelper.getInstance().getRiseOnlyBgAnimator(mBackgroundView).start();
+            AnimatorHelper.getInstance().getRiseOnlyEyeAnimator(mEyesView).start();
 
             mAnimationPlaying = true;
-            riseOnlyEyeAnimator.addListener(new Animator.AnimatorListener() {
+            AnimatorHelper.getInstance().getRiseOnlyEyeAnimator(mEyesView).addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animator) {
 
@@ -223,52 +178,27 @@ public class FaceView extends RelativeLayout {
     public void startShakeAnimator() {
         this.post(() -> {
             //左摇
-            ObjectAnimator leftShakeBgAnimator = ObjectAnimator.ofFloat(mBackgroundView, "translationX", -25);
-            leftShakeBgAnimator.setDuration(100);
-            leftShakeBgAnimator.start();
-
-            ObjectAnimator leftShakeEyeAnimator = ObjectAnimator.ofFloat(mEyesView, "translationX", -70);
-            leftShakeEyeAnimator.setDuration(100);
-            leftShakeEyeAnimator.start();
+            AnimatorHelper.getInstance().getLeftShakeBgAnimator(mBackgroundView).start();
+            AnimatorHelper.getInstance().getLeftShakeEyeAnimator(mEyesView).start();
 
             //右摇
-            ObjectAnimator rightShakeBgAnimator = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 20f);
-            rightShakeBgAnimator.setDuration(150).setStartDelay(100);
-            rightShakeBgAnimator.start();
-
-            ObjectAnimator rightShakeEyeAnimator = ObjectAnimator.ofFloat(mEyesView, "translationX", 55);
-            rightShakeEyeAnimator.setDuration(150).setStartDelay(100);
-            rightShakeEyeAnimator.start();
+            AnimatorHelper.getInstance().getRightShakeBgAnimator(mBackgroundView).start();
+            AnimatorHelper.getInstance().getRightShakeEyeAnimator(mEyesView).start();
 
             //左摇
-            ObjectAnimator leftShakeBgAnimator2 = ObjectAnimator.ofFloat(mBackgroundView, "translationX", -15f);
-            leftShakeBgAnimator2.setDuration(150).setStartDelay(250);
-            leftShakeBgAnimator2.start();
-
-            ObjectAnimator leftShakeEyeAnimator2 = ObjectAnimator.ofFloat(mEyesView, "translationX", -40);
-            leftShakeEyeAnimator2.setDuration(150).setStartDelay(250);
-            leftShakeEyeAnimator2.start();
+            AnimatorHelper.getInstance().getLeftShakeBgAnimator2(mBackgroundView).start();
+            AnimatorHelper.getInstance().getLeftShakeEyeAnimator2(mEyesView).start();
 
             //右摇
-            ObjectAnimator rightShakeBgAnimator2 = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 15f);
-            rightShakeBgAnimator2.setDuration(150).setStartDelay(400);
-            rightShakeBgAnimator2.start();
-
-            ObjectAnimator rightShakeEyeAnimator2 = ObjectAnimator.ofFloat(mEyesView, "translationX", 25f);
-            rightShakeEyeAnimator2.setDuration(150).setStartDelay(400);
-            rightShakeEyeAnimator2.start();
+            AnimatorHelper.getInstance().getRightShakeBgAnimator2(mBackgroundView).start();
+            AnimatorHelper.getInstance().getRightShakeEyeAnimator2(mEyesView).start();
 
             //还原
-            ObjectAnimator reverseShakeBgAnimator = ObjectAnimator.ofFloat(mBackgroundView, "translationX", 0);
-            reverseShakeBgAnimator.setDuration(100).setStartDelay(550);
-            reverseShakeBgAnimator.start();
-
-            ObjectAnimator reverseShakeEyeAnimator = ObjectAnimator.ofFloat(mEyesView, "translationX", 0);
-            reverseShakeEyeAnimator.setDuration(100).setStartDelay(550);
-            reverseShakeEyeAnimator.start();
+            AnimatorHelper.getInstance().getReverseShakeBgAnimator(mBackgroundView).start();
+            AnimatorHelper.getInstance().getReverseShakeEyeAnimator(mEyesView).start();
 
             mAnimationPlaying = true;
-            reverseShakeBgAnimator.addListener(new Animator.AnimatorListener() {
+            AnimatorHelper.getInstance().getReverseShakeEyeAnimator(mEyesView).addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animator) {
 

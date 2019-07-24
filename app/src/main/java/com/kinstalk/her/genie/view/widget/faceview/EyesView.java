@@ -9,7 +9,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
