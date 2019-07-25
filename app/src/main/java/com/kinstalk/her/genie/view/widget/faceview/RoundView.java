@@ -180,7 +180,7 @@ public class RoundView extends TextureView implements TextureView.SurfaceTexture
      * 释放动画
      */
     public void release() {
-//        setLayerType(LAYER_TYPE_NONE, null);
+        setLayerType(LAYER_TYPE_NONE, null);
         if (mValueAnimator != null && mValueAnimator.isRunning()) {
             mValueAnimator.cancel();
         }

@@ -3,13 +3,13 @@ package com.kinstalk.her.genie.view.widget.faceview;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.RectF;
-import android.media.MediaPlayer;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
@@ -38,16 +38,16 @@ public class EyesView extends View {
     }
 
     private void init() {
-//        setLayerType(LAYER_TYPE_SOFTWARE, null);
-
         mEyePath = new Path();
         mEyePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mEyePaint.setStyle(Paint.Style.STROKE);
+        mEyePaint.setDither(true);
         mEyePaint.setStrokeCap(Paint.Cap.ROUND);
-        mEyePaint.setStrokeJoin(Paint.Join.ROUND);
+        mEyePaint.setStrokeJoin(Paint.Join.BEVEL);
         mEyePaint.setStyle(Paint.Style.FILL);
         mEyePaint.setColor(DEFAULT_PAINT_COLOR);
         mEyePaint.setStrokeWidth(mEyeStrokeWidth);
+        mEyePaint.setMaskFilter(new BlurMaskFilter(4, BlurMaskFilter.Blur.SOLID));
+        setLayerType(LAYER_TYPE_HARDWARE, null);
 
         mCenterPos = new float[2];
         mLeftEyePos = new float[2];
@@ -189,7 +189,7 @@ public class EyesView extends View {
      * 释放动画
      */
     public void release() {
-//        setLayerType(LAYER_TYPE_NONE, null);
+        setLayerType(LAYER_TYPE_NONE, null);
 
         if (mOpenValueAnimator != null && mOpenValueAnimator.isRunning()) {
             mOpenValueAnimator.cancel();
