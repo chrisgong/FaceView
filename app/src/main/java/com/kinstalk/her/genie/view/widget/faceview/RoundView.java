@@ -1,5 +1,6 @@
 package com.kinstalk.her.genie.view.widget.faceview;
 
+import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -119,9 +121,9 @@ public class RoundView extends View {
     private void startBackgroundAnimator() {
         this.post(() -> {
             if (mRotationAnimator == null) {
-                mRotationAnimator = ValueAnimator.ofFloat(0.0f, 720.0f);
+                mRotationAnimator = ValueAnimator.ofFloat(0, 360f);
                 mRotationAnimator.setInterpolator(new LinearInterpolator());
-                mRotationAnimator.setDuration(4000);
+                mRotationAnimator.setDuration(3000);
                 mRotationAnimator.setStartDelay(200);
                 mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
                 mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
