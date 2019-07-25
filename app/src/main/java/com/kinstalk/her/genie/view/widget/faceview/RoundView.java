@@ -205,6 +205,7 @@ public class RoundView extends TextureView implements TextureView.SurfaceTexture
         }
         mStartAngle = 0;
         mSweepAngle = ROTATE_OFFSET;
+        setRotation(0);
         startCirculationAnimator();
     }
 
