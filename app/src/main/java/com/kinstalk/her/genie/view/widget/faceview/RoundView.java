@@ -3,19 +3,19 @@ package com.kinstalk.her.genie.view.widget.faceview;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.SurfaceTexture;
 import android.graphics.SweepGradient;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
@@ -23,7 +23,7 @@ import android.view.animation.DecelerateInterpolator;
  * @author Gc
  * @date 2019/7/16
  */
-public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Handler.Callback {
+public class RoundView extends TextureView implements TextureView.SurfaceTextureListener, Handler.Callback {
 
     private static final String TAG = "RoundView";
 
@@ -34,14 +34,11 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
     //loading
     public static final int MESSAGE_DRAW_LOADING = 0;
 
-    //转圈
-    public static final int MESSAGE_DRAW_IN_CIRCLES = 1;
-
     private Paint mArcPaint;
     private RectF mArcRectF;
     private Rect mArcRect;
 
-    private float mStartAngle, mSweepAngle, mRoteAngle;
+    private float mStartAngle, mSweepAngle;
     private int mStrokeColor;
     private int mAnimDuration;
     private float mBackgroundStrokeWidth;
@@ -51,7 +48,6 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
     private float mHalfSize;
 
     //Surface Config
-    private SurfaceHolder mSurfaceHolder;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
 
@@ -62,22 +58,20 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
         mBackgroundStrokeWidth = defaultPaintWidth;
         mStrokeColor = DEFAULT_PAINT_COLOR;
         mAnimDuration = DEFAULT_ANIM_DURATION;
+        mCenterPos = new float[2];
 
         mArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mArcPaint.setStyle(Paint.Style.STROKE);
+        mArcPaint.setDither(true);
         mArcPaint.setStrokeCap(Paint.Cap.ROUND);
-        mArcPaint.setStrokeJoin(Paint.Join.ROUND);
+        mArcPaint.setStrokeJoin(Paint.Join.BEVEL);
         mArcPaint.setStrokeWidth(mBackgroundStrokeWidth);
         mArcPaint.setColor(mStrokeColor);
+        mArcPaint.setMaskFilter(new BlurMaskFilter(4, BlurMaskFilter.Blur.SOLID));
         setLayerType(View.LAYER_TYPE_HARDWARE, mArcPaint);
 
-        mCenterPos = new float[2];
-
-        mSurfaceHolder = getHolder();
-        mSurfaceHolder.addCallback(this);
-        setZOrderOnTop(true);
-        mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
-
+        setAlpha(0.9f);
+        setSurfaceTextureListener(this);
     }
 
     @Override
@@ -109,7 +103,6 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
         matrix.setRotate(ROTATE_OFFSET - 10, mHalfSize, mHalfSize);
         sweepGradient.setLocalMatrix(matrix);
         mArcPaint.setShader(sweepGradient);
-//        mArcPaint.setShadowLayer(10, 0, 0, Color.WHITE);
     }
 
     @Override
@@ -134,7 +127,7 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
         if (mRotationAnimator == null) {
             mRotationAnimator = ValueAnimator.ofFloat(0, 360f);
             mRotationAnimator.setInterpolator(new QLinearInterpolator());
-            mRotationAnimator.setDuration(3000);
+            mRotationAnimator.setDuration(2500);
             mRotationAnimator.setStartDelay(200);
             mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
             mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
@@ -142,9 +135,8 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
                 if (!valueAnimator.isRunning()) {
                     return;
                 }
-
-                mRoteAngle = (float) valueAnimator.getAnimatedValue();
-                mHandler.sendEmptyMessage(MESSAGE_DRAW_IN_CIRCLES);
+                //旋转TextureView
+                setRotation((float) valueAnimator.getAnimatedValue());
             });
         }
 
@@ -160,7 +152,8 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
                 if (mSweepAngle >= -320) {
                     mStartAngle = (float) animation.getAnimatedValue();
                     mSweepAngle = ROTATE_OFFSET - mStartAngle;
-                    mHandler.sendEmptyMessage(MESSAGE_DRAW_LOADING);
+                    if (mHandler != null)
+                        mHandler.sendEmptyMessage(MESSAGE_DRAW_LOADING);
                 }
             });
         }
@@ -216,7 +209,7 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
         if (mHandlerThread == null) {
             mHandlerThread = new HandlerThread(TAG, 999);
             mHandlerThread.start();
@@ -226,16 +219,22 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
 
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
         if (isQuitHandlerThreadWhenDestroy) {
             mHandlerThread.quit();
             mHandlerThread = null;
         }
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
     }
 
     @Override
@@ -244,31 +243,17 @@ public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Ha
             case MESSAGE_DRAW_LOADING:
                 drawLoading();
                 return true;
-            case MESSAGE_DRAW_IN_CIRCLES:
-                drawInCircles();
-                return true;
         }
         return false;
-    }
-
-    /**
-     * 转圈
-     */
-    private void drawInCircles() {
-        Canvas canvas1 = mSurfaceHolder.lockCanvas(mArcRect);
-        canvas1.drawColor(Color.TRANSPARENT, android.graphics.PorterDuff.Mode.CLEAR);
-        canvas1.rotate(mRoteAngle, mHalfSize, mHalfSize);
-        canvas1.drawArc(mArcRectF, mStartAngle, mSweepAngle, false, mArcPaint);
-        mSurfaceHolder.unlockCanvasAndPost(canvas1);
     }
 
     /**
      * loading
      */
     private void drawLoading() {
-        Canvas canvas = mSurfaceHolder.lockCanvas(mArcRect);
+        Canvas canvas = this.lockCanvas(mArcRect);
         canvas.drawColor(Color.TRANSPARENT, android.graphics.PorterDuff.Mode.CLEAR);
         canvas.drawArc(mArcRectF, mStartAngle, mSweepAngle, false, mArcPaint);
-        mSurfaceHolder.unlockCanvasAndPost(canvas);
+        unlockCanvasAndPost(canvas);
     }
 }
