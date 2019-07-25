@@ -7,25 +7,40 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
-import android.util.Log;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 
 /**
  * @author Gc
  * @date 2019/7/16
  */
-public class RoundView extends View {
+public class RoundView extends SurfaceView implements SurfaceHolder.Callback, Handler.Callback {
 
-    private Paint mArcPaint;
-    private RectF mArcRectF;
+    private static final String TAG = "RoundView";
 
     private static final int DEFAULT_ANIM_DURATION = 400;
     private static final int DEFAULT_PAINT_COLOR = Color.parseColor("#A1FDFF");
     private static final int ROTATE_OFFSET = 270;
+
+    //loading
+    public static final int MESSAGE_DRAW_LOADING = 0;
+
+    //转圈
+    public static final int MESSAGE_DRAW_IN_CIRCLES = 1;
+
+    private Paint mArcPaint;
+    private RectF mArcRectF;
+    private Rect mArcRect;
+
     private float mStartAngle, mSweepAngle, mRoteAngle;
     private int mStrokeColor;
     private int mAnimDuration;
@@ -35,16 +50,16 @@ public class RoundView extends View {
     private ValueAnimator mValueAnimator, mRotationAnimator;
     private float mHalfSize;
 
+    //Surface Config
+    private SurfaceHolder mSurfaceHolder;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+
+    private boolean isQuitHandlerThreadWhenDestroy = true;
+
     public RoundView(Context context, int defaultPaintWidth) {
         super(context);
         mBackgroundStrokeWidth = defaultPaintWidth;
-        init();
-    }
-
-    private void init() {
-//        setLayerType(LAYER_TYPE_SOFTWARE, null);
-
-        // get attrs
         mStrokeColor = DEFAULT_PAINT_COLOR;
         mAnimDuration = DEFAULT_ANIM_DURATION;
 
@@ -54,17 +69,15 @@ public class RoundView extends View {
         mArcPaint.setStrokeJoin(Paint.Join.ROUND);
         mArcPaint.setStrokeWidth(mBackgroundStrokeWidth);
         mArcPaint.setColor(mStrokeColor);
+        setLayerType(View.LAYER_TYPE_HARDWARE, mArcPaint);
 
         mCenterPos = new float[2];
-    }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        if (mIsRotate) {
-            canvas.rotate(mRoteAngle, mHalfSize, mHalfSize);
-        }
+        mSurfaceHolder = getHolder();
+        mSurfaceHolder.addCallback(this);
+        setZOrderOnTop(true);
+        mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
 
-        canvas.drawArc(mArcRectF, mStartAngle, mSweepAngle, false, mArcPaint);
     }
 
     @Override
@@ -88,6 +101,7 @@ public class RoundView extends View {
         mCenterPos[0] = (width) / 2f;
         mCenterPos[1] = (height) / 2f;
         mArcRectF = new RectF(mBackgroundStrokeWidth - 5f, mBackgroundStrokeWidth - 5f, (float) width - mBackgroundStrokeWidth + 5f, (float) height - mBackgroundStrokeWidth + 5f);
+        mArcRect = new Rect((int) mArcRectF.left, (int) mArcRectF.top, (int) mArcRectF.left, (int) mArcRectF.right);
 
         int[] colors = {0xFFA1FDFF, 0xFF0073FF, 0x000073FF};
         SweepGradient sweepGradient = new SweepGradient(mHalfSize, mHalfSize, colors, new float[]{0.2f, 0.5f, 0.9f});
@@ -113,46 +127,53 @@ public class RoundView extends View {
         startBackgroundAnimator();
     }
 
-    private boolean mIsRotate;
-
     /**
      * 背景转圈动画
      */
     private void startBackgroundAnimator() {
-        this.post(() -> {
-            if (mRotationAnimator == null) {
-                mRotationAnimator = ValueAnimator.ofFloat(0, 360f);
-                mRotationAnimator.setInterpolator(new LinearInterpolator());
-                mRotationAnimator.setDuration(3000);
-                mRotationAnimator.setStartDelay(200);
-                mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
-                mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
-                mRotationAnimator.addUpdateListener(valueAnimator -> {
-                    mRoteAngle = (float) valueAnimator.getAnimatedValue();
-                    postInvalidate();
-                });
-            }
+        if (mRotationAnimator == null) {
+            mRotationAnimator = ValueAnimator.ofFloat(0, 360f);
+            mRotationAnimator.setInterpolator(new QLinearInterpolator());
+            mRotationAnimator.setDuration(3000);
+            mRotationAnimator.setStartDelay(200);
+            mRotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            mRotationAnimator.setRepeatMode(ValueAnimator.RESTART);
+            mRotationAnimator.addUpdateListener(valueAnimator -> {
+                if (!valueAnimator.isRunning()) {
+                    return;
+                }
 
-            if (mValueAnimator == null) {
-                mValueAnimator = ValueAnimator.ofFloat(ROTATE_OFFSET, 360.0f + ROTATE_OFFSET);
-                mValueAnimator.setDuration(mAnimDuration);
-                mValueAnimator.setInterpolator(new DecelerateInterpolator());
-                mValueAnimator.addUpdateListener(animation -> {
-                    if (!animation.isRunning()) {
-                        return;
-                    }
+                mRoteAngle = (float) valueAnimator.getAnimatedValue();
+                mHandler.sendEmptyMessage(MESSAGE_DRAW_IN_CIRCLES);
+            });
+        }
 
-                    if (mSweepAngle >= -320) {
-                        mStartAngle = (float) animation.getAnimatedValue();
-                        mSweepAngle = ROTATE_OFFSET - mStartAngle;
-                        mIsRotate = true;
-                        postInvalidate();
-                    }
-                });
-            }
-            mRotationAnimator.start();
-            mValueAnimator.start();
-        });
+        if (mValueAnimator == null) {
+            mValueAnimator = ValueAnimator.ofFloat(ROTATE_OFFSET, 360.0f + ROTATE_OFFSET);
+            mValueAnimator.setDuration(mAnimDuration);
+            mValueAnimator.setInterpolator(new DecelerateInterpolator());
+            mValueAnimator.addUpdateListener(animation -> {
+                if (!animation.isRunning()) {
+                    return;
+                }
+
+                if (mSweepAngle >= -320) {
+                    mStartAngle = (float) animation.getAnimatedValue();
+                    mSweepAngle = ROTATE_OFFSET - mStartAngle;
+                    mHandler.sendEmptyMessage(MESSAGE_DRAW_LOADING);
+                }
+            });
+        }
+        mRotationAnimator.start();
+        mValueAnimator.start();
+    }
+
+    private class QLinearInterpolator implements TimeInterpolator {
+
+        @Override
+        public float getInterpolation(float v) {
+            return v;
+        }
     }
 
     /**
@@ -167,7 +188,6 @@ public class RoundView extends View {
      */
     public void release() {
 //        setLayerType(LAYER_TYPE_NONE, null);
-
         if (mValueAnimator != null && mValueAnimator.isRunning()) {
             mValueAnimator.cancel();
         }
@@ -193,5 +213,62 @@ public class RoundView extends View {
         mStartAngle = 0;
         mSweepAngle = ROTATE_OFFSET;
         startCirculationAnimator();
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        if (mHandlerThread == null) {
+            mHandlerThread = new HandlerThread(TAG, 999);
+            mHandlerThread.start();
+            mHandler = new Handler(mHandlerThread.getLooper(), this);
+            isQuitHandlerThreadWhenDestroy = true;
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        if (isQuitHandlerThreadWhenDestroy) {
+            mHandlerThread.quit();
+            mHandlerThread = null;
+        }
+    }
+
+    @Override
+    public boolean handleMessage(Message message) {
+        switch (message.what) {
+            case MESSAGE_DRAW_LOADING:
+                drawLoading();
+                return true;
+            case MESSAGE_DRAW_IN_CIRCLES:
+                drawInCircles();
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * 转圈
+     */
+    private void drawInCircles() {
+        Canvas canvas1 = mSurfaceHolder.lockCanvas(mArcRect);
+        canvas1.drawColor(Color.TRANSPARENT, android.graphics.PorterDuff.Mode.CLEAR);
+        canvas1.rotate(mRoteAngle, mHalfSize, mHalfSize);
+        canvas1.drawArc(mArcRectF, mStartAngle, mSweepAngle, false, mArcPaint);
+        mSurfaceHolder.unlockCanvasAndPost(canvas1);
+    }
+
+    /**
+     * loading
+     */
+    private void drawLoading() {
+        Canvas canvas = mSurfaceHolder.lockCanvas(mArcRect);
+        canvas.drawColor(Color.TRANSPARENT, android.graphics.PorterDuff.Mode.CLEAR);
+        canvas.drawArc(mArcRectF, mStartAngle, mSweepAngle, false, mArcPaint);
+        mSurfaceHolder.unlockCanvasAndPost(canvas);
     }
 }
