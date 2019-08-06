@@ -181,8 +181,8 @@ public class EyesView extends View {
     }
 
     private void resetDefaultEyeCoordinate() {
-        mRectLeftEys = new RectF((int) mLeftEyePos[0] - mEyesRadius, (int) mLeftEyePos[1] - mEyesRadius, (int) (mLeftEyePos[0] + mEyesRadius), (int) (mLeftEyePos[1] + 4 * mEyesRadius));
-        mRectRightEys = new RectF((int) mRightEyePos[0] - mEyesRadius, (int) mRightEyePos[1] - mEyesRadius, (int) (mRightEyePos[0] + mEyesRadius), (int) (mRightEyePos[1] + 4 * mEyesRadius));
+        mRectLeftEys = new RectF((int) mLeftEyePos[0] - 1.5f * mEyesRadius, (int) mLeftEyePos[1] - mEyesRadius, (int) (mLeftEyePos[0] + 0.5f * mEyesRadius), (int) (mLeftEyePos[1] + 3 * mEyesRadius));
+        mRectRightEys = new RectF((int) mRightEyePos[0] - 0.5f * mEyesRadius, (int) mRightEyePos[1] - mEyesRadius, (int) (mRightEyePos[0] + 1.5f * mEyesRadius), (int) (mRightEyePos[1] + 3 * mEyesRadius));
     }
 
     /**

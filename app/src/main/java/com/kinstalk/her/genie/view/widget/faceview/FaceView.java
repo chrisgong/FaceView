@@ -17,7 +17,7 @@ import java.util.Random;
  * @date 2019/7/18
  */
 public class FaceView extends RelativeLayout {
-    private static final int DEFAULT_PAINT_WIDTH = 15;
+    private static final int DEFAULT_PAINT_WIDTH = 20;
     private static final int ACTION_INIT_ANIMATOR = 0;
     private static final int ACTION_BLINK_ANIMATOR = 1;
 
@@ -47,8 +47,8 @@ public class FaceView extends RelativeLayout {
     private void init(Context context) {
 //        setLayerType(LAYER_TYPE_SOFTWARE, null);
 
-        mBackgroundSize = dp2px(250);
-        mEyesSize = dp2px(250);
+        mBackgroundSize = dp2px(160);
+        mEyesSize = dp2px(160);
         RelativeLayout.LayoutParams paramsBackground = new RelativeLayout.LayoutParams(mBackgroundSize, mBackgroundSize);
         RelativeLayout.LayoutParams paramsEyes = new RelativeLayout.LayoutParams(mEyesSize, mEyesSize);
         paramsBackground.addRule(RelativeLayout.CENTER_IN_PARENT);

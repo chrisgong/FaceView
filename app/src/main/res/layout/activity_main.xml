@@ -6,8 +6,8 @@
 
     <com.kinstalk.her.genie.view.widget.faceview.FaceView
         android:id="@+id/faceView"
-        android:layout_width="400dp"
-        android:layout_height="400dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         android:layout_centerInParent="true"
         android:gravity="center" />
 
