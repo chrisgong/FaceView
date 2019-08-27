@@ -1,7 +1,7 @@
 # FaceView
 点头Yes摇头No，写两表情玩玩
 
-![](https://im4.ezgif.com/tmp/ezgif-4-40e7126c920b.gif)
+![gif](https://github.com/chrisgong/FaceView/blob/master/Kapture%202019-08-27%20at%2017.18.13.gif?raw=true)
 
 ---
 
